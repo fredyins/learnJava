@@ -11,7 +11,7 @@ public class Configuration {
 		configurations.put(ConfigurationKeys.EMAIL_ADMIN, "admin@company.com");
 	}
 	/**
-	 * Ó¦¸Ã´ÓÅäÖÃÎÄ¼ş¶Á£¬ µ«ÊÇÕâÀï¼ò»¯ÎªÖ±½Ó´ÓÒ»¸ömap ÖĞÈ¥¶Á
+	 * åº”è¯¥ä»é…ç½®æ–‡ä»¶è¯»ï¼Œ ä½†æ˜¯è¿™é‡Œç®€åŒ–ä¸ºç›´æ¥ä»ä¸€ä¸ªmap ä¸­å»è¯»
 	 * @param key
 	 * @return
 	 */

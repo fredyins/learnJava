@@ -1,16 +1,10 @@
 package com.coderising.ood.srp;
 
 public class MailUtil {
-
-	public static void sendEmail(String toAddress, String fromAddress, String subject, String message, String smtpHost,
-			boolean debug) {
-		//¼Ù×°·¢ÁËÒ»·âÓÊ¼ş
-		StringBuilder buffer = new StringBuilder();
-		buffer.append("From:").append(fromAddress).append("\n");
-		buffer.append("To:").append(toAddress).append("\n");
-		buffer.append("Subject:").append(subject).append("\n");
-		buffer.append("Content:").append(message).append("\n");
-		System.out.println(buffer.toString());
+	
+	public static void sendEmail(Mail mail, boolean debug) {
+		//å‡è£…å‘äº†ä¸€å°é‚®ä»¶
+		System.out.println(mail.toString());
 		
 	}
 

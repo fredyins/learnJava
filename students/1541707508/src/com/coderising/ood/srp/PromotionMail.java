@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,19 +15,18 @@ public class PromotionMail {
 	protected String sendMailQuery = null;
 
 
-	protected String smtpHost = null;
-	protected String altSmtpHost = null; 
-	protected String fromAddress = null;
-	protected String toAddress = null;
-	protected String subject = null;
-	protected String message = null;
+//	protected String smtpHost = null;
+//	protected String altSmtpHost = null; 
+//	protected String fromAddress = null;
+//	protected String toAddress = null;
+//	protected String subject = null;
+//	protected String message = null;
 
-	protected String productID = null;
-	protected String productDesc = null;
+//	protected String productID = null;
+//	protected String productDesc = null;
+	protected List<Product> productList = null;
 
 	private static Configuration config; 
-	
-	
 	
 	private static final String NAME_KEY = "NAME";
 	private static final String EMAIL_KEY = "EMAIL";
@@ -34,51 +34,56 @@ public class PromotionMail {
 
 	public static void main(String[] args) throws Exception {
 
-		File f = new File("C:\\coderising\\workspace_ds\\ood-example\\src\\product_promotion.txt");
+		File f = new File("D:\\office\\zcy\\gitHub\\1541707505\\students\\1541707508\\src\\com\\coderising\\ood\\srp\\product_promotion.txt");
 		boolean emailDebug = false;
 
-		PromotionMail pe = new PromotionMail(f, emailDebug);
+		PromotionMail pm = new PromotionMail(f, emailDebug);
 
 	}
 
 	
 	public PromotionMail(File file, boolean mailDebug) throws Exception {
 		
-		//¶ÁÈ¡ÅäÖÃÎÄ¼ş£¬ ÎÄ¼şÖĞÖ»ÓĞÒ»ĞĞÓÃ¿Õ¸ñ¸ô¿ª£¬ ÀıÈç P8756 iPhone8
-		readFile(file);
-
-		
+		//è¯»å–é…ç½®æ–‡ä»¶ï¼Œ æ–‡ä»¶ä¸­åªæœ‰ä¸€è¡Œç”¨ç©ºæ ¼éš”å¼€ï¼Œ ä¾‹å¦‚ P8756 iPhone8
+		List<Product> productList = readFileToProducts(file);
 		config = new Configuration();
 		
-		setSMTPHost();
-		setAltSMTPHost(); 
+		for (Product product : productList) {
+			System.out.println(product);
+			Mail mail = new Mail();
+			mail.setProduct(product);
+			setLoadQuery(product.getProductID());
+			sendEMails(mail, mailDebug, loadMailingList()); 
+		}
+
+		
+		
+//		setSMTPHost();
+//		setAltSMTPHost(); 
 	
 
-		setFromAddress();
+//		setFromAddress();
 
 		
-		setLoadQuery();
 		
-		sendEMails(mailDebug, loadMailingList()); 
+//		sendEMails(mailDebug, loadMailingList()); 
 
 		
 	}
 
 
+//	protected void setProductID(String productID) 
+//	{ 
+//		this.productID = productID; 
+//		
+//	} 
 
+//	protected String getproductID() 
+//	{
+//		return productID; 
+//	} 
 
-	protected void setProductID(String productID) 
-	{ 
-		this.productID = productID; 
-		
-	} 
-
-	protected String getproductID() 
-	{
-		return productID; 
-	} 
-
-	protected void setLoadQuery() throws Exception {
+	protected void setLoadQuery(String productID) throws Exception {
 		
 		sendMailQuery = "Select name from subscriptions "
 				+ "where product_id= '" + productID +"' "
@@ -88,69 +93,43 @@ public class PromotionMail {
 		System.out.println("loadQuery set");
 	}
 
-	
-	protected void setSMTPHost() 
+	protected List<Product> readFileToProducts(File file) throws IOException // @02C
 	{
-		smtpHost = config.getProperty(ConfigurationKeys.SMTP_SERVER); 
-	}
-
-	
-	protected void setAltSMTPHost() 
-	{
-		altSmtpHost = config.getProperty(ConfigurationKeys.ALT_SMTP_SERVER); 
-
-	}
-
-	
-	protected void setFromAddress() 
-	{
-			fromAddress = config.getProperty(ConfigurationKeys.EMAIL_ADMIN); 
-	}
-
-	protected void setMessage(HashMap userInfo) throws IOException 
-	{
-		
-		String name = (String) userInfo.get(NAME_KEY);
-		
-		subject = "Äú¹Ø×¢µÄ²úÆ·½µ¼ÛÁË";
-		message = "×ğ¾´µÄ "+name+", Äú¹Ø×¢µÄ²úÆ· " + productDesc + " ½µ¼ÛÁË£¬»¶Ó­¹ºÂò!" ;		
-				
-		
-
-	}
-
-	
-	protected void readFile(File file) throws IOException // @02C
-	{
+		List<Product> productList = new ArrayList<Product>();
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(file));
-			String temp = br.readLine();
-			String[] data = temp.split(" ");
-			
-			setProductID(data[0]); 
-			setProductDesc(data[1]); 
-			
-			System.out.println("²úÆ·ID = " + productID + "\n");
-			System.out.println("²úÆ·ÃèÊö = " + productDesc + "\n");
+			String temp = null;
+			while((temp = br.readLine()) != null) {
+				String[] data = temp.split(" ");
+				Product p = new Product(data[0], data[1]);
+				productList.add(p);
+			}
 
 		} catch (IOException e) {
 			throw new IOException(e.getMessage());
 		} finally {
-			br.close();
+			if(br != null) {
+				br.close();
+			}
 		}
+		return productList;
 	}
 
-	private void setProductDesc(String desc) {
-		this.productDesc = desc;		
-	}
-
-
-	protected void configureEMail(HashMap userInfo) throws IOException 
+	protected Mail configureEMail(Mail mail, HashMap userInfo) throws IOException 
 	{
-		toAddress = (String) userInfo.get(EMAIL_KEY); 
-		if (toAddress.length() > 0) 
-			setMessage(userInfo); 
+		String toAddress = (String) userInfo.get(EMAIL_KEY); 
+		if (toAddress.length() > 0)  {
+			String name = (String) userInfo.get(NAME_KEY);
+			String subject = "æ‚¨å…³æ³¨çš„äº§å“é™ä»·äº†";
+			String message = "å°Šæ•¬çš„ "+name+", æ‚¨å…³æ³¨çš„äº§å“ " + mail.getProduct().getProductDesc() + " é™ä»·äº†ï¼Œæ¬¢è¿è´­ä¹°!" ;
+			mail.setTo(toAddress);
+			mail.setSubject(subject);
+			mail.setContent(message);
+			mail.setFrom(config.getProperty(ConfigurationKeys.EMAIL_ADMIN));
+			mail.setSmtpHost(config.getProperty(ConfigurationKeys.SMTP_SERVER));
+		}
+		return mail;
 	}
 
 	protected List loadMailingList() throws Exception {
@@ -158,30 +137,27 @@ public class PromotionMail {
 	}
 	
 	
-	protected void sendEMails(boolean debug, List mailingList) throws IOException 
+	protected void sendEMails(Mail mail, boolean debug, List mailingList) throws IOException 
 	{
-
-		System.out.println("¿ªÊ¼·¢ËÍÓÊ¼ş");
-	
+		System.out.println("å¼€å§‹å‘é€é‚®ä»¶");
 
 		if (mailingList != null) {
 			Iterator iter = mailingList.iterator();
 			while (iter.hasNext()) {
-				configureEMail((HashMap) iter.next());  
+				mail = configureEMail(mail, (HashMap) iter.next());  
 				try 
 				{
-					if (toAddress.length() > 0)
-						MailUtil.sendEmail(toAddress, fromAddress, subject, message, smtpHost, debug);
+					if (mail.getTo().length() > 0)
+						MailUtil.sendEmail(mail, debug);
 				} 
 				catch (Exception e) 
 				{
-					
 					try {
-						MailUtil.sendEmail(toAddress, fromAddress, subject, message, altSmtpHost, debug); 
-						
+						mail.setSmtpHost(config.getProperty(ConfigurationKeys.ALT_SMTP_SERVER));
+						MailUtil.sendEmail(mail, debug); 
 					} catch (Exception e2) 
 					{
-						System.out.println("Í¨¹ı±¸ÓÃ SMTP·şÎñÆ÷·¢ËÍÓÊ¼şÊ§°Ü: " + e2.getMessage()); 
+						System.out.println("é€šè¿‡å¤‡ç”¨ SMTPæœåŠ¡å™¨å‘é€é‚®ä»¶å¤±è´¥: " + e2.getMessage()); 
 					}
 				}
 			}
@@ -190,7 +166,7 @@ public class PromotionMail {
 		}
 
 		else {
-			System.out.println("Ã»ÓĞÓÊ¼ş·¢ËÍ");
+			System.out.println("æ²¡æœ‰é‚®ä»¶å‘é€");
 			
 		}
 

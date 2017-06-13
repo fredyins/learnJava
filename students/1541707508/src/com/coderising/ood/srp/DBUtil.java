@@ -6,8 +6,7 @@ import java.util.List;
 public class DBUtil {
 	
 	/**
-	 * Ó¦¸Ã´ÓÊı¾İ¿â¶Á£¬ µ«ÊÇ¼ò»¯ÎªÖ±½ÓÉú³É¡£
-	 * 
+	 * åº”è¯¥ä»æ•°æ®åº“è¯»ï¼Œ ä½†æ˜¯ç®€åŒ–ä¸ºç›´æ¥ç”Ÿæˆã€‚
 	 * @param sql
 	 * @return
 	 */
@@ -17,7 +16,7 @@ public class DBUtil {
 		for (int i = 1; i <= 3; i++) {
 			HashMap userInfo = new HashMap();
 			userInfo.put("NAME", "User" + i);			
-			userInfo.put("EMAIL", "aa@bb.com");
+			userInfo.put("EMAIL", i + "aa@bb.com");
 			userList.add(userInfo);
 		}
 
